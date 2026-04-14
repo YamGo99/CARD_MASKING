@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Card Mask Generator</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Noto+Sans+Hebrew:wght@300;400;700&display=swap');
+  :root {
+    --bg: #0a0a0f; --surface: #13131a; --surface2: #1c1c28;
+    --border: #2a2a3a; --accent: #e8d5a3; --accent2: #7c6fa0;
+    --white: #f5f0e8; --red: #c0392b; --green: #2ecc71; --text: #b0a8c0;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--white); font-family: 'Noto Sans Hebrew', sans-serif; min-height: 100vh; }
+
+  header {
+    padding: 18px 28px; border-bottom: 1px solid var(--border);
+    background: var(--surface); display: flex; align-items: center; gap: 14px;
+  }
+  .logo { width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--accent); display: flex; align-items: center; justify-content: center; font-family: 'Space Mono', monospace; font-size: 13px; color: var(--accent); }
+  header h1 { font-family: 'Space Mono', monospace; font-size: 13px; color: var(--accent); letter-spacing: 0.1em; text-transform: uppercase; }
+  header p { font-size: 11px; color: var(--text); margin-top: 2px; }
+
+  .app { display: grid; grid-template-columns: 300px 1fr; gap: 20px; padding: 24px; max-width: 1100px; margin: 0 auto; }
+
+  .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+  .ph { padding: 12px 16px; border-bottom: 1px solid var(--border); font-family: 'Space Mono', monospace; font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--text); display: flex; align-items: center; gap: 8px; }
+  .ph .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+  .pb { padding: 16px; }
+
+  .upload-zone {
+    border: 1.5px dashed var(--border); border-radius: 6px; padding: 28px 12px;
+    text-align: center; cursor: pointer; transition: all 0.2s; background: var(--surface2); position: relative;
+  }
+  .upload-zone:hover, .upload-zone.dragover { border-color: var(--accent); background: #1a1a24; }
+  .upload-zone input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+  .upload-zone .icon { font-size: 28px; margin-bottom: 8px; }
+  .upload-zone strong { color: var(--accent); font-size: 13px; display: block; margin-bottom: 3px; }
+  .upload-zone p { font-size: 11px; color: var(--text); }
+
+  .sec { font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent2); margin: 16px 0 10px; padding-bottom: 5px; border-bottom: 1px solid var(--border); }
+
+  .row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .row label { font-size: 12px; color: var(--text); }
+  .row .v { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--accent); min-width: 28px; text-align: left; }
+  input[type=range] { -webkit-appearance: none; width: 120px; height: 3px; background: var(--border); border-radius: 2px; outline: none; }
+  input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 13px; height: 13px; border-radius: 50%; background: var(--accent); cursor: pointer; }
+
+  .trow { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .trow label { font-size: 12px; color: var(--text); }
+  .toggle { position: relative; width: 34px; height: 18px; }
+  .toggle input { opacity: 0; width: 0; height: 0; }
+  .toggle-slider { position: absolute; inset: 0; background: var(--border); border-radius: 9px; cursor: pointer; transition: 0.2s; }
+  .toggle-slider:before { content: ''; position: absolute; width: 12px; height: 12px; left: 3px; top: 3px; background: var(--text); border-radius: 50%; transition: 0.2s; }
+  .toggle input:checked + .toggle-slider { background: var(--accent2); }
+  .toggle input:checked + .toggle-slider:before { transform: translateX(16px); background: white; }
+
+  .btn { width: 100%; padding: 11px; border-radius: 5px; border: none; font-family: 'Space Mono', monospace; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; transition: all 0.2s; margin-top: 6px; }
+  .btn-primary { background: var(--accent); color: #0a0a0f; font-weight: 700; }
+  .btn-primary:hover:not(:disabled) { background: #f5e6b8; }
+  .btn-primary:disabled { opacity: 0.35; cursor: not-allowed; }
+  .btn-dl { background: var(--green); color: #0a0a0f; font-weight: 700; display: none; }
+  .btn-dl:hover { background: #58d68d; }
+  .btn-dl.show { display: block; }
+  .btn-sec { background: transparent; color: var(--text); border: 1px solid var(--border); }
+  .btn-sec:hover { border-color: var(--accent2); color: var(--white); }
+
+  /* canvas side */
+  .canvas-panel { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; }
+  .toolbar { padding: 10px 14px; border-bottom: 1px solid var(--border); display: flex; gap: 6px; align-items: center; background: var(--surface2); flex-wrap: wrap; }
+  .tab { padding: 5px 12px; border-radius: 4px; border: 1px solid var(--border); background: transparent; color: var(--text); font-family: 'Space Mono', monospace; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; transition: all 0.15s; }
+  .tab.on { background: var(--accent2); border-color: var(--accent2); color: white; }
+  .tab:hover:not(.on) { border-color: var(--text); color: var(--white); }
+
+  .brush-ctrl { display: none; align-items: center; gap: 8px; margin-right: auto; }
+  .brush-ctrl.show { display: flex; }
+  .brush-ctrl span { font-size: 10px; color: var(--text); font-family: 'Space Mono', monospace; }
+  .brush-ctrl input[type=range] { width: 70px; }
+  .pb-btn { padding: 4px 9px; border-radius: 3px; border: 1px solid var(--border); background: transparent; color: var(--text); font-size: 10px; font-family: 'Space Mono', monospace; cursor: pointer; transition: all 0.15s; }
+  .pb-btn.w.on { background: #fff; color: #000; border-color: #fff; }
+  .pb-btn.b.on { background: #1a1a1a; color: #fff; border-color: #555; }
+
+  .cw { flex: 1; overflow: auto; display: flex; align-items: flex-start; justify-content: center; padding: 20px; background: #050508; min-height: 420px; position: relative; }
+  .cc { position: relative; display: inline-block; line-height: 0; }
+  #mc, #pc { display: block; max-width: 100%; max-height: 65vh; }
+  #pc { position: absolute; top: 0; left: 0; cursor: crosshair; opacity: 0; pointer-events: none; }
+  #pc.on { opacity: 1; pointer-events: all; }
+
+  .placeholder { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; color: var(--border); }
+  .placeholder p { font-size: 13px; }
+
+  .sbar { padding: 7px 14px; border-top: 1px solid var(--border); font-family: 'Space Mono', monospace; font-size: 10px; color: var(--text); display: flex; gap: 12px; align-items: center; }
+  .sdot { width: 6px; height: 6px; border-radius: 50%; background: var(--border); flex-shrink: 0; }
+  .sdot.ready { background: var(--green); }
+  .sdot.proc { background: var(--accent); animation: pulse 1s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+  .prog { width: 100%; height: 2px; background: var(--border); border-radius: 2px; overflow: hidden; margin-top: 6px; display: none; }
+  .pf { height: 100%; background: var(--accent); width: 0%; transition: width 0.3s; }
+
+  .info { background: var(--surface2); border-right: 3px solid var(--accent2); border-radius: 4px; padding: 9px 12px; font-size: 11px; color: var(--text); line-height: 1.7; margin-top: 12px; }
+  .info strong { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">P</div>
+  <div>
+    <h1>Card Mask Generator</h1>
+    <p>מסכת UV לבן — קלף בודד</p>
+  </div>
+</header>
+
+<div class="app">
+
+  <!-- LEFT -->
+  <div>
+    <div class="panel">
+      <div class="ph"><div class="dot"></div>קלף קלט</div>
+      <div class="pb">
+        <div class="upload-zone" id="uz">
+          <input type="file" id="fi" accept="image/png,image/jpeg">
+          <div class="icon">🃏</div>
+          <strong>העלה קלף בודד</strong>
+          <p>PNG / JPG — גרור או לחץ</p>
+        </div>
+
+        <div class="sec">כוונון מסכה</div>
+
+        <div class="row">
+          <label>סף בהירות</label>
+          <input type="range" id="sl-thresh" min="20" max="220" value="85">
+          <span class="v" id="v-thresh">85</span>
+        </div>
+        <div class="row">
+          <label>Blur (החלקה)</label>
+          <input type="range" id="sl-blur" min="0" max="8" value="2">
+          <span class="v" id="v-blur">2</span>
+        </div>
+        <div class="row">
+          <label>Dilate (הרחבה)</label>
+          <input type="range" id="sl-dilate" min="0" max="12" value="3">
+          <span class="v" id="v-dilate">3</span>
+        </div>
+
+        <div class="sec">אזורי Template (S&V)</div>
+
+        <div class="trow">
+          <label>מסגרת</label>
+          <label class="toggle"><input type="checkbox" id="t-frame" checked><span class="toggle-slider"></span></label>
+        </div>
+        <div class="trow">
+          <label>Header (שם + HP)</label>
+          <label class="toggle"><input type="checkbox" id="t-header" checked><span class="toggle-slider"></span></label>
+        </div>
+        <div class="trow">
+          <label>Text Box (התקפות)</label>
+          <label class="toggle"><input type="checkbox" id="t-text" checked><span class="toggle-slider"></span></label>
+        </div>
+        <div class="trow">
+          <label>Footer</label>
+          <label class="toggle"><input type="checkbox" id="t-footer" checked><span class="toggle-slider"></span></label>
+        </div>
+        <div class="trow">
+          <label>Badge (BASIC/Stage)</label>
+          <label class="toggle"><input type="checkbox" id="t-badge" checked><span class="toggle-slider"></span></label>
+        </div>
+
+        <div class="sec">פעולות</div>
+
+        <button class="btn btn-primary" id="processBtn" disabled>⚡ צור מסכה</button>
+        <div class="prog" id="prog"><div class="pf" id="pf"></div></div>
+        <button class="btn btn-dl" id="dlBtn">↓ הורד PNG מסכה</button>
+        <button class="btn btn-sec" id="resetPaintBtn" style="margin-top:4px;display:none">↺ אפס תיקונים ידניים</button>
+
+        <div class="info">
+          <strong>לבן</strong> = UV ink → מסתיר הולו<br>
+          <strong>שחור</strong> = שקוף → הולו נראה<br><br>
+          טאב <strong>Paint</strong> לתיקונים ידניים<br>
+          טאב <strong>Overlay</strong> לבדיקה
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT -->
+  <div class="canvas-panel">
+    <div class="toolbar">
+      <button class="tab on" data-tab="original">מקור</button>
+      <button class="tab" data-tab="mask">מסכה</button>
+      <button class="tab" data-tab="overlay">Overlay</button>
+      <button class="tab" data-tab="paint">✏️ Paint</button>
+
+      <div class="brush-ctrl" id="bctrl">
+        <span>מברשת</span>
+        <input type="range" id="bsize" min="2" max="100" value="20">
+        <span class="v" id="bsizev">20</span>
+        <button class="pb-btn w on" id="pbw">לבן</button>
+        <button class="pb-btn b" id="pbb">שחור</button>
+      </div>
+    </div>
+
+    <div class="cw">
+      <div class="placeholder" id="ph">
+        <svg width="56" height="56" viewBox="0 0 56 56" fill="none">
+          <rect x="6" y="6" width="44" height="44" rx="4" stroke="#2a2a3a" stroke-width="1.5"/>
+          <rect x="13" y="13" width="30" height="7" rx="2" fill="#2a2a3a"/>
+          <rect x="13" y="24" width="30" height="18" rx="2" fill="#1c1c28"/>
+          <rect x="13" y="46" width="30" height="4" rx="2" fill="#2a2a3a"/>
+        </svg>
+        <p>העלה קלף להתחלה</p>
+      </div>
+      <div class="cc" id="cc" style="display:none">
+        <canvas id="mc"></canvas>
+        <canvas id="pc"></canvas>
+      </div>
+    </div>
+
+    <div class="sbar">
+      <div class="sdot" id="sdot"></div>
+      <span id="stxt">ממתין לקובץ...</span>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const mc = document.getElementById('mc'), pc = document.getElementById('pc');
+const mctx = mc.getContext('2d'), pctx = pc.getContext('2d');
+let origImg = null, maskData = null, paintData = null;
+let imgW = 0, imgH = 0;
+let painting = false, paintColor = 'white', brushSz = 20;
+let curTab = 'original';
+
+// Upload
+const uz = document.getElementById('uz'), fi = document.getElementById('fi');
+uz.addEventListener('dragover', e => { e.preventDefault(); uz.classList.add('dragover'); });
+uz.addEventListener('dragleave', () => uz.classList.remove('dragover'));
+uz.addEventListener('drop', e => { e.preventDefault(); uz.classList.remove('dragover'); if (e.dataTransfer.files[0]) load(e.dataTransfer.files[0]); });
+fi.addEventListener('change', e => { if (e.target.files[0]) load(e.target.files[0]); });
+
+function load(file) {
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const img = new Image();
+    img.onload = () => {
+      origImg = img; imgW = img.width; imgH = img.height;
+      mc.width = imgW; mc.height = imgH;
+      pc.width = imgW; pc.height = imgH;
+      paintData = pctx.createImageData(imgW, imgH);
+      maskData = null;
+      document.getElementById('processBtn').disabled = false;
+      document.getElementById('ph').style.display = 'none';
+      document.getElementById('cc').style.display = 'inline-block';
+      setStatus('ready', `${imgW}×${imgH}px`);
+      showTab('original');
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+// Sliders
+[['sl-thresh','v-thresh'],['sl-blur','v-blur'],['sl-dilate','v-dilate']].forEach(([sid,vid]) => {
+  document.getElementById(sid).addEventListener('input', e => document.getElementById(vid).textContent = e.target.value);
+});
+document.getElementById('bsize').addEventListener('input', e => { brushSz = +e.target.value; document.getElementById('bsizev').textContent = e.target.value; });
+
+// Tabs
+document.querySelectorAll('.tab[data-tab]').forEach(btn => {
+  btn.addEventListener('click', () => showTab(btn.dataset.tab));
+});
+
+function showTab(tab) {
+  curTab = tab;
+  document.querySelectorAll('.tab[data-tab]').forEach(b => b.classList.toggle('on', b.dataset.tab === tab));
+  document.getElementById('bctrl').classList.toggle('show', tab === 'paint');
+  pc.classList.toggle('on', tab === 'paint');
+  render();
+}
+
+function render() {
+  if (!origImg) return;
+  mctx.clearRect(0, 0, imgW, imgH);
+  if (curTab === 'original') {
+    mctx.drawImage(origImg, 0, 0);
+  } else if (curTab === 'mask') {
+    const combined = getCombined();
+    if (combined) mctx.putImageData(combined, 0, 0);
+    else { mctx.fillStyle='#000'; mctx.fillRect(0,0,imgW,imgH); }
+  } else if (curTab === 'overlay') {
+    mctx.drawImage(origImg, 0, 0);
+    const combined = getCombined();
+    if (combined) {
+      const ov = mctx.createImageData(imgW, imgH);
+      for (let i = 0; i < combined.data.length; i+=4) {
+        if (combined.data[i] > 128) {
+          ov.data[i]=255; ov.data[i+1]=50; ov.data[i+2]=50; ov.data[i+3]=120;
+        }
+      }
+      const t = document.createElement('canvas'); t.width=imgW; t.height=imgH;
+      t.getContext('2d').putImageData(ov,0,0);
+      mctx.drawImage(t,0,0);
+    }
+  } else if (curTab === 'paint') {
+    const combined = getCombined();
+    if (combined) mctx.putImageData(combined, 0, 0);
+    else { mctx.fillStyle='#000'; mctx.fillRect(0,0,imgW,imgH); }
+    pctx.clearRect(0,0,imgW,imgH);
+    if (paintData) pctx.putImageData(paintData,0,0);
+  }
+}
+
+function getCombined() {
+  if (!maskData) return null;
+  const out = new ImageData(new Uint8ClampedArray(maskData.data), imgW, imgH);
+  if (paintData) {
+    for (let i = 0; i < out.data.length; i+=4) {
+      if (paintData.data[i+3] > 0) {
+        const v = paintData.data[i];
+        out.data[i]=v; out.data[i+1]=v; out.data[i+2]=v; out.data[i+3]=255;
+      }
+    }
+  }
+  return out;
+}
+
+// Process
+document.getElementById('processBtn').addEventListener('click', async () => {
+  if (!origImg) return;
+  setStatus('proc', 'מעבד...');
+  document.getElementById('prog').style.display='block';
+  prog(10); await sleep(20);
+
+  const thresh = +document.getElementById('sl-thresh').value;
+  const blurR  = +document.getElementById('sl-blur').value;
+  const dilate = +document.getElementById('sl-dilate').value;
+
+  // Get pixel data
+  const tmp = document.createElement('canvas'); tmp.width=imgW; tmp.height=imgH;
+  const tc = tmp.getContext('2d'); tc.drawImage(origImg,0,0);
+  const src = tc.getImageData(0,0,imgW,imgH);
+
+  prog(20); await sleep(20);
+
+  // Luminance
+  const lum = new Uint8Array(imgW*imgH);
+  for (let i=0;i<lum.length;i++) {
+    lum[i] = Math.round(0.299*src.data[i*4] + 0.587*src.data[i*4+1] + 0.114*src.data[i*4+2]);
+  }
+
+  prog(35); await sleep(20);
+  const blurred = blurR > 0 ? boxBlur(lum, imgW, imgH, blurR) : lum;
+  prog(50); await sleep(20);
+
+  // Threshold
+  const fg = new Uint8Array(imgW*imgH);
+  for (let i=0;i<fg.length;i++) fg[i] = blurred[i] >= thresh ? 1 : 0;
+
+  // Template zones
+  const tm = new Uint8Array(imgW*imgH);
+  applyTemplate(tm, imgW, imgH);
+
+  prog(65); await sleep(20);
+
+  // Combine
+  let combined = new Uint8Array(imgW*imgH);
+  for (let i=0;i<combined.length;i++) combined[i] = (fg[i]||tm[i]) ? 1 : 0;
+
+  if (dilate > 0) combined = morphDilate(combined, imgW, imgH, dilate);
+  combined = morphClose(combined, imgW, imgH, 2);
+
+  prog(90); await sleep(20);
+
+  // Write mask
+  const out = tc.createImageData(imgW, imgH);
+  for (let i=0;i<combined.length;i++) {
+    const v = combined[i] ? 255 : 0;
+    out.data[i*4]=v; out.data[i*4+1]=v; out.data[i*4+2]=v; out.data[i*4+3]=255;
+  }
+  maskData = out;
+  paintData = tc.createImageData(imgW, imgH); // reset paint
+
+  prog(100); await sleep(80);
+  document.getElementById('prog').style.display='none';
+  document.getElementById('dlBtn').classList.add('show');
+  document.getElementById('resetPaintBtn').style.display='block';
+  setStatus('ready', 'מסכה מוכנה');
+  showTab('mask');
+});
+
+// Template zones — S&V Illustration Rare proportions
+function applyTemplate(mask, w, h) {
+  const frame  = document.getElementById('t-frame').checked;
+  const header = document.getElementById('t-header').checked;
+  const text   = document.getElementById('t-text').checked;
+  const footer = document.getElementById('t-footer').checked;
+  const badge  = document.getElementById('t-badge').checked;
+
+  function fill(x1f,y1f,x2f,y2f) {
+    const x1=Math.round(w*x1f), y1=Math.round(h*y1f);
+    const x2=Math.round(w*x2f), y2=Math.round(h*y2f);
+    for (let y=y1;y<y2;y++) for (let x=x1;x<x2;x++) mask[y*w+x]=1;
+  }
+
+  if (frame) {
+    fill(0,0,1,0.022);       // top border
+    fill(0,0.978,1,1);       // bottom border
+    fill(0,0,0.022,1);       // left border
+    fill(0.978,0,1,1);       // right border
+  }
+  if (header) fill(0.022, 0.022, 0.978, 0.13);  // name + HP row
+  if (badge)  fill(0.022, 0.022, 0.21,  0.08);  // BASIC badge
+  if (text)   fill(0.022, 0.67,  0.978, 0.978); // attacks + stats
+  if (footer) fill(0.022, 0.93,  0.978, 0.978); // footer line
+}
+
+// Image processing
+function boxBlur(src, w, h, r) {
+  const tmp = new Float32Array(src.length), out = new Uint8Array(src.length), d = 2*r+1;
+  for (let y=0;y<h;y++) {
+    let s=0;
+    for (let x=-r;x<r;x++) s+=src[y*w+Math.max(0,x)];
+    for (let x=0;x<w;x++) { s+=src[y*w+Math.min(w-1,x+r)]; s-=src[y*w+Math.max(0,x-r-1)]; tmp[y*w+x]=s/d; }
+  }
+  for (let x=0;x<w;x++) {
+    let s=0;
+    for (let y=-r;y<r;y++) s+=tmp[Math.max(0,y)*w+x];
+    for (let y=0;y<h;y++) { s+=tmp[Math.min(h-1,y+r)*w+x]; s-=tmp[Math.max(0,y-r-1)*w+x]; out[y*w+x]=s/d; }
+  }
+  return out;
+}
+
+function morphDilate(src, w, h, r) {
+  const out = new Uint8Array(src.length);
+  for (let y=0;y<h;y++) for (let x=0;x<w;x++) {
+    if (src[y*w+x]) { out[y*w+x]=1; continue; }
+    let f=false;
+    outer: for (let dy=-r;dy<=r;dy++) for (let dx=-r;dx<=r;dx++) {
+      const nx=x+dx,ny=y+dy;
+      if (nx>=0&&nx<w&&ny>=0&&ny<h&&src[ny*w+nx]) { f=true; break outer; }
+    }
+    out[y*w+x]=f?1:0;
+  }
+  return out;
+}
+
+function morphErode(src, w, h, r) {
+  const out = new Uint8Array(src.length);
+  for (let y=0;y<h;y++) for (let x=0;x<w;x++) {
+    if (!src[y*w+x]) continue;
+    let ok=true;
+    outer: for (let dy=-r;dy<=r;dy++) for (let dx=-r;dx<=r;dx++) {
+      const nx=x+dx,ny=y+dy;
+      if (nx>=0&&nx<w&&ny>=0&&ny<h&&!src[ny*w+nx]) { ok=false; break outer; }
+    }
+    out[y*w+x]=ok?1:0;
+  }
+  return out;
+}
+
+function morphClose(src, w, h, r) { return morphErode(morphDilate(src,w,h,r),w,h,r); }
+
+// Paint
+document.getElementById('pbw').addEventListener('click', () => { paintColor='white'; document.getElementById('pbw').classList.add('on'); document.getElementById('pbb').classList.remove('on'); });
+document.getElementById('pbb').addEventListener('click', () => { paintColor='black'; document.getElementById('pbb').classList.add('on'); document.getElementById('pbw').classList.remove('on'); });
+document.getElementById('resetPaintBtn').addEventListener('click', () => { if (!origImg) return; paintData = pctx.createImageData(imgW,imgH); render(); });
+
+function getXY(e) {
+  const r = pc.getBoundingClientRect();
+  const sx = imgW/r.width, sy = imgH/r.height;
+  const cx = e.touches ? e.touches[0].clientX : e.clientX;
+  const cy = e.touches ? e.touches[0].clientY : e.clientY;
+  return { x: Math.round((cx-r.left)*sx), y: Math.round((cy-r.top)*sy) };
+}
+
+function paintAt(x, y) {
+  const v = paintColor==='white' ? 255 : 0;
+  for (let dy=-brushSz;dy<=brushSz;dy++) for (let dx=-brushSz;dx<=brushSz;dx++) {
+    if (dx*dx+dy*dy>brushSz*brushSz) continue;
+    const nx=x+dx, ny=y+dy;
+    if (nx<0||nx>=imgW||ny<0||ny>=imgH) continue;
+    const i=(ny*imgW+nx)*4;
+    paintData.data[i]=v; paintData.data[i+1]=v; paintData.data[i+2]=v; paintData.data[i+3]=255;
+  }
+  pctx.clearRect(0,0,imgW,imgH);
+  pctx.putImageData(paintData,0,0);
+}
+
+pc.addEventListener('mousedown', e => { painting=true; const p=getXY(e); paintAt(p.x,p.y); });
+pc.addEventListener('mousemove', e => { if (!painting) return; const p=getXY(e); paintAt(p.x,p.y); });
+pc.addEventListener('mouseup', () => painting=false);
+pc.addEventListener('mouseleave', () => painting=false);
+pc.addEventListener('touchstart', e => { e.preventDefault(); painting=true; const p=getXY(e); paintAt(p.x,p.y); },{passive:false});
+pc.addEventListener('touchmove', e => { e.preventDefault(); if(!painting) return; const p=getXY(e); paintAt(p.x,p.y); },{passive:false});
+pc.addEventListener('touchend', () => painting=false);
+
+// Download
+document.getElementById('dlBtn').addEventListener('click', () => {
+  const t=document.createElement('canvas'); t.width=imgW; t.height=imgH;
+  const c=getCombined(); if(c) t.getContext('2d').putImageData(c,0,0);
+  const a=document.createElement('a'); a.download='mask.png'; a.href=t.toDataURL('image/png'); a.click();
+});
+
+// Utils
+function setStatus(state, txt) {
+  const d=document.getElementById('sdot');
+  d.className='sdot'+(state?' '+state:'');
+  document.getElementById('stxt').textContent=txt;
+}
+function prog(v) { document.getElementById('pf').style.width=v+'%'; }
+function sleep(ms) { return new Promise(r=>setTimeout(r,ms)); }
+</script>
+</body>
+</html>
