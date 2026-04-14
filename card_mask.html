@@ -3,218 +3,182 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Card Mask Generator</title>
+<title>Card Mask Generator v2</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Noto+Sans+Hebrew:wght@300;400;700&display=swap');
-  :root {
-    --bg: #0a0a0f; --surface: #13131a; --surface2: #1c1c28;
-    --border: #2a2a3a; --accent: #e8d5a3; --accent2: #7c6fa0;
-    --white: #f5f0e8; --red: #c0392b; --green: #2ecc71; --text: #b0a8c0;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: var(--bg); color: var(--white); font-family: 'Noto Sans Hebrew', sans-serif; min-height: 100vh; }
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Noto+Sans+Hebrew:wght@300;400;700&display=swap');
+:root {
+  --bg:#08080d; --s1:#111118; --s2:#18181f; --s3:#1f1f28;
+  --b1:#252530; --b2:#32323f;
+  --gold:#d4b896; --purple:#8b7db5; --green:#3dd68c; --red:#e05555;
+  --txt:#9890a8; --white:#ece8f0;
+  --mono:'Space Mono',monospace; --sans:'Noto Sans Hebrew',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--white);font-family:var(--sans);min-height:100vh;display:flex;flex-direction:column}
 
-  header {
-    padding: 18px 28px; border-bottom: 1px solid var(--border);
-    background: var(--surface); display: flex; align-items: center; gap: 14px;
-  }
-  .logo { width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--accent); display: flex; align-items: center; justify-content: center; font-family: 'Space Mono', monospace; font-size: 13px; color: var(--accent); }
-  header h1 { font-family: 'Space Mono', monospace; font-size: 13px; color: var(--accent); letter-spacing: 0.1em; text-transform: uppercase; }
-  header p { font-size: 11px; color: var(--text); margin-top: 2px; }
+/* HEADER */
+header{padding:14px 24px;background:var(--s1);border-bottom:1px solid var(--b1);display:flex;align-items:center;gap:12px;flex-shrink:0}
+.hlogo{width:28px;height:28px;border-radius:50%;border:1.5px solid var(--gold);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;color:var(--gold)}
+header h1{font-family:var(--mono);font-size:12px;color:var(--gold);letter-spacing:.12em;text-transform:uppercase}
+header p{font-size:11px;color:var(--txt);margin-top:1px}
+.hbadge{margin-right:auto;padding:3px 8px;border-radius:3px;background:var(--s3);border:1px solid var(--b2);font-family:var(--mono);font-size:9px;color:var(--purple);letter-spacing:.1em}
 
-  .app { display: grid; grid-template-columns: 300px 1fr; gap: 20px; padding: 24px; max-width: 1100px; margin: 0 auto; }
+/* LAYOUT */
+.app{display:flex;flex:1;overflow:hidden;min-height:0}
+.sidebar{width:280px;flex-shrink:0;background:var(--s1);border-left:1px solid var(--b1);overflow-y:auto;display:flex;flex-direction:column}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
 
-  .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
-  .ph { padding: 12px 16px; border-bottom: 1px solid var(--border); font-family: 'Space Mono', monospace; font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--text); display: flex; align-items: center; gap: 8px; }
-  .ph .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
-  .pb { padding: 16px; }
+/* SIDEBAR SECTIONS */
+.sec{padding:10px 16px;border-bottom:1px solid var(--b1)}
+.sec-title{font-family:var(--mono);font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--purple);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.sec-title::before{content:'';width:4px;height:4px;border-radius:50%;background:var(--purple);flex-shrink:0}
 
-  .upload-zone {
-    border: 1.5px dashed var(--border); border-radius: 6px; padding: 28px 12px;
-    text-align: center; cursor: pointer; transition: all 0.2s; background: var(--surface2); position: relative;
-  }
-  .upload-zone:hover, .upload-zone.dragover { border-color: var(--accent); background: #1a1a24; }
-  .upload-zone input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
-  .upload-zone .icon { font-size: 28px; margin-bottom: 8px; }
-  .upload-zone strong { color: var(--accent); font-size: 13px; display: block; margin-bottom: 3px; }
-  .upload-zone p { font-size: 11px; color: var(--text); }
+/* UPLOAD */
+.upz{border:1.5px dashed var(--b2);border-radius:6px;padding:20px 10px;text-align:center;cursor:pointer;transition:all .2s;background:var(--s2);position:relative}
+.upz:hover,.upz.drag{border-color:var(--gold);background:var(--s3)}
+.upz input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.upz-icon{font-size:24px;margin-bottom:6px}
+.upz strong{color:var(--gold);font-size:12px;display:block;margin-bottom:2px}
+.upz p{font-size:10px;color:var(--txt)}
 
-  .sec { font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent2); margin: 16px 0 10px; padding-bottom: 5px; border-bottom: 1px solid var(--border); }
+/* SLIDERS */
+.row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.row label{font-size:11px;color:var(--txt);flex:1;min-width:0}
+.row input[type=range]{-webkit-appearance:none;width:90px;flex-shrink:0;height:3px;background:var(--b2);border-radius:2px;outline:none}
+.row input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;border-radius:50%;background:var(--gold);cursor:pointer}
+.val{font-family:var(--mono);font-size:10px;color:var(--gold);width:24px;text-align:left;flex-shrink:0}
 
-  .row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-  .row label { font-size: 12px; color: var(--text); }
-  .row .v { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--accent); min-width: 28px; text-align: left; }
-  input[type=range] { -webkit-appearance: none; width: 120px; height: 3px; background: var(--border); border-radius: 2px; outline: none; }
-  input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 13px; height: 13px; border-radius: 50%; background: var(--accent); cursor: pointer; }
+/* TOGGLES */
+.trow{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px}
+.trow label{font-size:11px;color:var(--txt)}
+.tog{position:relative;width:32px;height:17px}
+.tog input{opacity:0;width:0;height:0}
+.tslider{position:absolute;inset:0;background:var(--b1);border-radius:9px;cursor:pointer;transition:.2s}
+.tslider:before{content:'';position:absolute;width:11px;height:11px;left:3px;top:3px;background:var(--txt);border-radius:50%;transition:.2s}
+.tog input:checked+.tslider{background:var(--purple)}
+.tog input:checked+.tslider:before{transform:translateX(15px);background:white}
 
-  .trow { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-  .trow label { font-size: 12px; color: var(--text); }
-  .toggle { position: relative; width: 34px; height: 18px; }
-  .toggle input { opacity: 0; width: 0; height: 0; }
-  .toggle-slider { position: absolute; inset: 0; background: var(--border); border-radius: 9px; cursor: pointer; transition: 0.2s; }
-  .toggle-slider:before { content: ''; position: absolute; width: 12px; height: 12px; left: 3px; top: 3px; background: var(--text); border-radius: 50%; transition: 0.2s; }
-  .toggle input:checked + .toggle-slider { background: var(--accent2); }
-  .toggle input:checked + .toggle-slider:before { transform: translateX(16px); background: white; }
+/* BUTTONS */
+.btn{width:100%;padding:10px;border-radius:4px;border:none;font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:all .2s;margin-top:5px}
+.btn-gold{background:var(--gold);color:#08080d;font-weight:700}
+.btn-gold:hover{background:#e8ccaa}
+.btn-gold:disabled{opacity:.3;cursor:not-allowed}
+.btn-green{background:var(--green);color:#08080d;font-weight:700;display:none}
+.btn-green.show{display:block}
+.btn-green:hover{background:#5fe8a8}
+.btn-ghost{background:transparent;color:var(--txt);border:1px solid var(--b2)}
+.btn-ghost:hover{border-color:var(--purple);color:var(--white)}
+.btn-ghost:disabled{opacity:.3;cursor:not-allowed}
 
-  .btn { width: 100%; padding: 11px; border-radius: 5px; border: none; font-family: 'Space Mono', monospace; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; transition: all 0.2s; margin-top: 6px; }
-  .btn-primary { background: var(--accent); color: #0a0a0f; font-weight: 700; }
-  .btn-primary:hover:not(:disabled) { background: #f5e6b8; }
-  .btn-primary:disabled { opacity: 0.35; cursor: not-allowed; }
-  .btn-dl { background: var(--green); color: #0a0a0f; font-weight: 700; display: none; }
-  .btn-dl:hover { background: #58d68d; }
-  .btn-dl.show { display: block; }
-  .btn-sec { background: transparent; color: var(--text); border: 1px solid var(--border); }
-  .btn-sec:hover { border-color: var(--accent2); color: var(--white); }
+/* SAM SECTION */
+.sam-status{padding:8px 10px;border-radius:4px;background:var(--s3);border:1px solid var(--b1);font-size:10px;color:var(--txt);line-height:1.6;margin-bottom:8px}
+.sam-status .label{font-family:var(--mono);font-size:9px;color:var(--purple);margin-bottom:3px;letter-spacing:.1em}
+.seg-mode-row{display:flex;gap:4px;margin-bottom:8px}
+.seg-mode-btn{flex:1;padding:6px 4px;border-radius:3px;border:1px solid var(--b2);background:transparent;color:var(--txt);font-family:var(--mono);font-size:9px;letter-spacing:.06em;cursor:pointer;transition:all .15s;text-align:center}
+.seg-mode-btn.on{background:var(--purple);border-color:var(--purple);color:white}
 
-  /* canvas side */
-  .canvas-panel { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; }
-  .toolbar { padding: 10px 14px; border-bottom: 1px solid var(--border); display: flex; gap: 6px; align-items: center; background: var(--surface2); flex-wrap: wrap; }
-  .tab { padding: 5px 12px; border-radius: 4px; border: 1px solid var(--border); background: transparent; color: var(--text); font-family: 'Space Mono', monospace; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; transition: all 0.15s; }
-  .tab.on { background: var(--accent2); border-color: var(--accent2); color: white; }
-  .tab:hover:not(.on) { border-color: var(--text); color: var(--white); }
+/* LAYER LIST */
+.layers{display:flex;flex-direction:column;gap:4px}
+.layer-item{display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:4px;background:var(--s2);border:1px solid var(--b1);font-size:11px}
+.layer-thumb{width:28px;height:28px;border-radius:3px;border:1px solid var(--b2);flex-shrink:0;background:#000;overflow:hidden}
+.layer-thumb canvas{width:100%;height:100%}
+.layer-name{flex:1;color:var(--txt);font-size:10px}
+.layer-del{background:none;border:none;color:var(--b2);cursor:pointer;font-size:14px;padding:0 2px;transition:color .15s}
+.layer-del:hover{color:var(--red)}
+.layer-add{display:flex;align-items:center;gap:5px}
+.layer-add input[type=radio]{display:none}
+.layer-add label{padding:3px 8px;border-radius:3px;border:1px solid var(--b2);font-size:9px;font-family:var(--mono);cursor:pointer;color:var(--txt);transition:all .15s}
+.layer-add input:checked+label{border-color:var(--green);color:var(--green)}
 
-  .brush-ctrl { display: none; align-items: center; gap: 8px; margin-right: auto; }
-  .brush-ctrl.show { display: flex; }
-  .brush-ctrl span { font-size: 10px; color: var(--text); font-family: 'Space Mono', monospace; }
-  .brush-ctrl input[type=range] { width: 70px; }
-  .pb-btn { padding: 4px 9px; border-radius: 3px; border: 1px solid var(--border); background: transparent; color: var(--text); font-size: 10px; font-family: 'Space Mono', monospace; cursor: pointer; transition: all 0.15s; }
-  .pb-btn.w.on { background: #fff; color: #000; border-color: #fff; }
-  .pb-btn.b.on { background: #1a1a1a; color: #fff; border-color: #555; }
+/* MAIN CANVAS AREA */
+.toolbar{padding:8px 14px;background:var(--s2);border-bottom:1px solid var(--b1);display:flex;gap:5px;align-items:center;flex-wrap:wrap}
+.tab{padding:5px 11px;border-radius:4px;border:1px solid var(--b1);background:transparent;color:var(--txt);font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:all .15s}
+.tab.on{background:var(--purple);border-color:var(--purple);color:white}
+.tab:hover:not(.on){border-color:var(--txt);color:var(--white)}
+.brush-c{display:none;align-items:center;gap:6px;margin-right:auto}
+.brush-c.show{display:flex}
+.brush-c span{font-size:9px;color:var(--txt);font-family:var(--mono)}
+.brush-c input[type=range]{width:65px}
+.pb{padding:3px 8px;border-radius:3px;border:1px solid var(--b1);background:transparent;color:var(--txt);font-size:9px;font-family:var(--mono);cursor:pointer;transition:all .15s}
+.pb.w.on{background:#fff;color:#000;border-color:#fff}
+.pb.b.on{background:#1a1a1a;color:#fff;border-color:#555}
 
-  .cw { flex: 1; overflow: auto; display: flex; align-items: flex-start; justify-content: center; padding: 20px; background: #050508; min-height: 420px; position: relative; }
-  .cc { position: relative; display: inline-block; line-height: 0; }
-  #mc, #pc { display: block; max-width: 100%; max-height: 65vh; }
-  #pc { position: absolute; top: 0; left: 0; cursor: crosshair; opacity: 0; pointer-events: none; }
-  #pc.on { opacity: 1; pointer-events: all; }
+.cw{flex:1;overflow:auto;display:flex;align-items:flex-start;justify-content:center;padding:16px;background:#030305;position:relative}
+.cc{position:relative;display:inline-block;line-height:0}
+#mc{display:block;max-width:100%;max-height:calc(100vh - 160px)}
+#pc,#sc{position:absolute;top:0;left:0;pointer-events:none}
+#pc{opacity:0}
+#sc{opacity:0}
+#pc.on,#sc.on{pointer-events:all}
+#pc.on{opacity:1;cursor:crosshair}
+#sc.on{opacity:1;cursor:crosshair}
 
-  .placeholder { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; color: var(--border); }
-  .placeholder p { font-size: 13px; }
+.placeholder{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:var(--b2)}
+.placeholder p{font-size:12px}
 
-  .sbar { padding: 7px 14px; border-top: 1px solid var(--border); font-family: 'Space Mono', monospace; font-size: 10px; color: var(--text); display: flex; gap: 12px; align-items: center; }
-  .sdot { width: 6px; height: 6px; border-radius: 50%; background: var(--border); flex-shrink: 0; }
-  .sdot.ready { background: var(--green); }
-  .sdot.proc { background: var(--accent); animation: pulse 1s infinite; }
-  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+.sbar{padding:6px 14px;background:var(--s2);border-top:1px solid var(--b1);font-family:var(--mono);font-size:9px;color:var(--txt);display:flex;gap:10px;align-items:center;flex-shrink:0}
+.sdot{width:5px;height:5px;border-radius:50%;background:var(--b2);flex-shrink:0}
+.sdot.ok{background:var(--green)}
+.sdot.busy{background:var(--gold);animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 
-  .prog { width: 100%; height: 2px; background: var(--border); border-radius: 2px; overflow: hidden; margin-top: 6px; display: none; }
-  .pf { height: 100%; background: var(--accent); width: 0%; transition: width 0.3s; }
+.pbar{width:100%;height:2px;background:var(--b2);border-radius:2px;overflow:hidden;margin-top:4px;display:none}
+.pf{height:100%;background:var(--gold);width:0%;transition:width .25s}
 
-  .info { background: var(--surface2); border-right: 3px solid var(--accent2); border-radius: 4px; padding: 9px 12px; font-size: 11px; color: var(--text); line-height: 1.7; margin-top: 12px; }
-  .info strong { color: var(--accent); }
+/* SAM loading overlay */
+.sam-overlay{position:absolute;inset:0;background:rgba(8,8,13,.85);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;z-index:10;backdrop-filter:blur(4px)}
+.sam-overlay p{font-family:var(--mono);font-size:11px;color:var(--gold);letter-spacing:.1em}
+.sam-overlay .sub{font-size:9px;color:var(--txt)}
+.spin{width:32px;height:32px;border:2px solid var(--b2);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Segment preview on hover */
+.seg-hint{position:absolute;background:rgba(139,125,181,.15);border:1.5px solid var(--purple);border-radius:2px;pointer-events:none;display:none}
 </style>
 </head>
 <body>
 
 <header>
-  <div class="logo">P</div>
+  <div class="hlogo">P</div>
   <div>
     <h1>Card Mask Generator</h1>
-    <p>מסכת UV לבן — קלף בודד</p>
+    <p>UV White Ink — S&V Illustration Rare</p>
   </div>
+  <div class="hbadge">v2 · SAM</div>
 </header>
 
 <div class="app">
 
-  <!-- LEFT -->
-  <div>
-    <div class="panel">
-      <div class="ph"><div class="dot"></div>קלף קלט</div>
-      <div class="pb">
-        <div class="upload-zone" id="uz">
-          <input type="file" id="fi" accept="image/png,image/jpeg">
-          <div class="icon">🃏</div>
-          <strong>העלה קלף בודד</strong>
-          <p>PNG / JPG — גרור או לחץ</p>
-        </div>
-
-        <div class="sec">כוונון מסכה</div>
-
-        <div class="row">
-          <label>סף בהירות</label>
-          <input type="range" id="sl-thresh" min="20" max="220" value="85">
-          <span class="v" id="v-thresh">85</span>
-        </div>
-        <div class="row">
-          <label>Blur (החלקה)</label>
-          <input type="range" id="sl-blur" min="0" max="8" value="2">
-          <span class="v" id="v-blur">2</span>
-        </div>
-        <div class="row">
-          <label>Dilate (הרחבה)</label>
-          <input type="range" id="sl-dilate" min="0" max="12" value="3">
-          <span class="v" id="v-dilate">3</span>
-        </div>
-
-        <div class="sec">אזורי Template (S&V)</div>
-
-        <div class="trow">
-          <label>מסגרת</label>
-          <label class="toggle"><input type="checkbox" id="t-frame" checked><span class="toggle-slider"></span></label>
-        </div>
-        <div class="trow">
-          <label>Header (שם + HP)</label>
-          <label class="toggle"><input type="checkbox" id="t-header" checked><span class="toggle-slider"></span></label>
-        </div>
-        <div class="trow">
-          <label>Text Box (התקפות)</label>
-          <label class="toggle"><input type="checkbox" id="t-text" checked><span class="toggle-slider"></span></label>
-        </div>
-        <div class="trow">
-          <label>Footer</label>
-          <label class="toggle"><input type="checkbox" id="t-footer" checked><span class="toggle-slider"></span></label>
-        </div>
-        <div class="trow">
-          <label>Badge (BASIC/Stage)</label>
-          <label class="toggle"><input type="checkbox" id="t-badge" checked><span class="toggle-slider"></span></label>
-        </div>
-
-        <div class="sec">פעולות</div>
-
-        <button class="btn btn-primary" id="processBtn" disabled>⚡ צור מסכה</button>
-        <div class="prog" id="prog"><div class="pf" id="pf"></div></div>
-        <button class="btn btn-dl" id="dlBtn">↓ הורד PNG מסכה</button>
-        <button class="btn btn-sec" id="resetPaintBtn" style="margin-top:4px;display:none">↺ אפס תיקונים ידניים</button>
-
-        <div class="info">
-          <strong>לבן</strong> = UV ink → מסתיר הולו<br>
-          <strong>שחור</strong> = שקוף → הולו נראה<br><br>
-          טאב <strong>Paint</strong> לתיקונים ידניים<br>
-          טאב <strong>Overlay</strong> לבדיקה
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- RIGHT -->
-  <div class="canvas-panel">
+  <!-- MAIN -->
+  <div class="main">
     <div class="toolbar">
       <button class="tab on" data-tab="original">מקור</button>
       <button class="tab" data-tab="mask">מסכה</button>
       <button class="tab" data-tab="overlay">Overlay</button>
       <button class="tab" data-tab="paint">✏️ Paint</button>
-
-      <div class="brush-ctrl" id="bctrl">
+      <div class="brush-c" id="bctrl">
         <span>מברשת</span>
-        <input type="range" id="bsize" min="2" max="100" value="20">
-        <span class="v" id="bsizev">20</span>
-        <button class="pb-btn w on" id="pbw">לבן</button>
-        <button class="pb-btn b" id="pbb">שחור</button>
+        <input type="range" id="bsize" min="2" max="120" value="20">
+        <span class="val" id="bsizev">20</span>
+        <button class="pb w on" id="pbw">לבן</button>
+        <button class="pb b" id="pbb">שחור</button>
       </div>
     </div>
 
-    <div class="cw">
+    <div class="cw" id="cw">
       <div class="placeholder" id="ph">
-        <svg width="56" height="56" viewBox="0 0 56 56" fill="none">
-          <rect x="6" y="6" width="44" height="44" rx="4" stroke="#2a2a3a" stroke-width="1.5"/>
-          <rect x="13" y="13" width="30" height="7" rx="2" fill="#2a2a3a"/>
-          <rect x="13" y="24" width="30" height="18" rx="2" fill="#1c1c28"/>
-          <rect x="13" y="46" width="30" height="4" rx="2" fill="#2a2a3a"/>
+        <svg width="52" height="52" viewBox="0 0 52 52" fill="none">
+          <rect x="5" y="5" width="42" height="42" rx="4" stroke="#252530" stroke-width="1.5"/>
+          <rect x="12" y="12" width="28" height="6" rx="2" fill="#252530"/>
+          <rect x="12" y="22" width="28" height="16" rx="2" fill="#18181f"/>
+          <rect x="12" y="42" width="28" height="3" rx="2" fill="#252530"/>
         </svg>
         <p>העלה קלף להתחלה</p>
       </div>
       <div class="cc" id="cc" style="display:none">
         <canvas id="mc"></canvas>
-        <canvas id="pc"></canvas>
+        <canvas id="pc"></canvas><!-- paint layer -->
+        <canvas id="sc"></canvas><!-- SAM interaction layer -->
       </div>
     </div>
 
@@ -224,102 +188,210 @@
     </div>
   </div>
 
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+
+    <!-- Upload -->
+    <div class="sec">
+      <div class="sec-title">קובץ</div>
+      <div class="upz" id="uz">
+        <input type="file" id="fi" accept="image/png,image/jpeg">
+        <div class="upz-icon">🃏</div>
+        <strong>העלה קלף בודד</strong>
+        <p>PNG / JPG</p>
+      </div>
+    </div>
+
+    <!-- Template zones -->
+    <div class="sec">
+      <div class="sec-title">Template S&V (זמן אמת)</div>
+      <div class="trow"><label>מסגרת</label><label class="tog"><input type="checkbox" id="t-frame" checked><span class="tslider"></span></label></div>
+      <div class="trow"><label>Header (שם + HP)</label><label class="tog"><input type="checkbox" id="t-header" checked><span class="tslider"></span></label></div>
+      <div class="trow"><label>Text Box (התקפות)</label><label class="tog"><input type="checkbox" id="t-text" checked><span class="tslider"></span></label></div>
+      <div class="trow"><label>Footer</label><label class="tog"><input type="checkbox" id="t-footer" checked><span class="tslider"></span></label></div>
+      <div class="trow"><label>Badge (BASIC/Stage)</label><label class="tog"><input type="checkbox" id="t-badge" checked><span class="tslider"></span></label></div>
+    </div>
+
+    <!-- Threshold (live) -->
+    <div class="sec">
+      <div class="sec-title">Threshold (זמן אמת)</div>
+      <div class="row"><label>סף בהירות</label><input type="range" id="sl-thresh" min="0" max="255" value="85"><span class="val" id="v-thresh">85</span></div>
+      <div class="row"><label>Blur</label><input type="range" id="sl-blur" min="0" max="8" value="2"><span class="val" id="v-blur">2</span></div>
+      <div class="row"><label>Dilate</label><input type="range" id="sl-dilate" min="0" max="12" value="3"><span class="val" id="v-dilate">3</span></div>
+      <div class="trow" style="margin-top:6px"><label>הפעל Threshold</label><label class="tog"><input type="checkbox" id="t-thresh"><span class="tslider"></span></label></div>
+    </div>
+
+    <!-- SAM -->
+    <div class="sec">
+      <div class="sec-title">Click-to-Segment (SAM)</div>
+      <div class="sam-status" id="samStatus">
+        <div class="label">סטטוס</div>
+        <span id="samStatusTxt">לא נטען — לחץ "טען SAM"</span>
+      </div>
+      <button class="btn btn-ghost" id="loadSamBtn">⬇ טען SAM (~40MB)</button>
+
+      <div style="margin-top:10px;display:none" id="samControls">
+        <div class="seg-mode-row">
+          <button class="seg-mode-btn on" id="smAdd">➕ הוסף</button>
+          <button class="seg-mode-btn" id="smRemove">➖ הסר</button>
+        </div>
+        <div class="layers" id="layerList"></div>
+        <p style="font-size:10px;color:var(--txt);margin-top:8px;line-height:1.6">לחץ על אובייקט בתמונה לסגמנטציה. בחר הוסף/הסר לפני לחיצה.</p>
+      </div>
+    </div>
+
+    <!-- Export -->
+    <div class="sec">
+      <div class="sec-title">יצוא</div>
+      <div class="pbar" id="prog"><div class="pf" id="pf"></div></div>
+      <button class="btn btn-green show" id="dlBtn" disabled>↓ הורד PNG מסכה</button>
+      <button class="btn btn-ghost" id="resetPaint" style="margin-top:4px" disabled>↺ אפס Paint</button>
+    </div>
+
+  </div>
 </div>
 
-<script>
-const mc = document.getElementById('mc'), pc = document.getElementById('pc');
-const mctx = mc.getContext('2d'), pctx = pc.getContext('2d');
-let origImg = null, maskData = null, paintData = null;
-let imgW = 0, imgH = 0;
-let painting = false, paintColor = 'white', brushSz = 20;
-let curTab = 'original';
+<script type="module">
+// ─── STATE ───────────────────────────────────────────────────────────────────
+const mc=document.getElementById('mc'), pc=document.getElementById('pc'), sc=document.getElementById('sc');
+const mctx=mc.getContext('2d'), pctx=pc.getContext('2d'), sctx=sc.getContext('2d');
+let origImg=null, imgW=0, imgH=0;
+let maskBase=null;     // Uint8Array — template + threshold combined
+let samLayers=[];      // [{name, mask:Uint8Array, add:bool}]
+let paintData=null;    // ImageData — manual paint
+let curTab='original';
+let painting=false, paintColor='white', brushSz=20;
+let samPipeline=null, samLoading=false;
+let segMode='add'; // 'add' | 'remove'
+let debounceTimer=null;
 
-// Upload
-const uz = document.getElementById('uz'), fi = document.getElementById('fi');
-uz.addEventListener('dragover', e => { e.preventDefault(); uz.classList.add('dragover'); });
-uz.addEventListener('dragleave', () => uz.classList.remove('dragover'));
-uz.addEventListener('drop', e => { e.preventDefault(); uz.classList.remove('dragover'); if (e.dataTransfer.files[0]) load(e.dataTransfer.files[0]); });
-fi.addEventListener('change', e => { if (e.target.files[0]) load(e.target.files[0]); });
+// ─── UPLOAD ──────────────────────────────────────────────────────────────────
+const uz=document.getElementById('uz'), fi=document.getElementById('fi');
+uz.addEventListener('dragover',e=>{e.preventDefault();uz.classList.add('drag')});
+uz.addEventListener('dragleave',()=>uz.classList.remove('drag'));
+uz.addEventListener('drop',e=>{e.preventDefault();uz.classList.remove('drag');if(e.dataTransfer.files[0])loadFile(e.dataTransfer.files[0])});
+fi.addEventListener('change',e=>{if(e.target.files[0])loadFile(e.target.files[0])});
 
-function load(file) {
-  const reader = new FileReader();
-  reader.onload = ev => {
-    const img = new Image();
-    img.onload = () => {
-      origImg = img; imgW = img.width; imgH = img.height;
-      mc.width = imgW; mc.height = imgH;
-      pc.width = imgW; pc.height = imgH;
-      paintData = pctx.createImageData(imgW, imgH);
-      maskData = null;
-      document.getElementById('processBtn').disabled = false;
-      document.getElementById('ph').style.display = 'none';
-      document.getElementById('cc').style.display = 'inline-block';
-      setStatus('ready', `${imgW}×${imgH}px`);
-      showTab('original');
+function loadFile(file){
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    const img=new Image();
+    img.onload=()=>{
+      origImg=img; imgW=img.width; imgH=img.height;
+      mc.width=imgW; mc.height=imgH;
+      pc.width=imgW; pc.height=imgH;
+      sc.width=imgW; sc.height=imgH;
+      paintData=pctx.createImageData(imgW,imgH);
+      samLayers=[];
+      renderLayerList();
+      document.getElementById('ph').style.display='none';
+      document.getElementById('cc').style.display='inline-block';
+      document.getElementById('dlBtn').disabled=false;
+      document.getElementById('resetPaint').disabled=false;
+      setStatus('ok',`${imgW}×${imgH}px`);
+      rebuildMask();
     };
-    img.src = ev.target.result;
+    img.src=ev.target.result;
   };
   reader.readAsDataURL(file);
 }
 
-// Sliders
-[['sl-thresh','v-thresh'],['sl-blur','v-blur'],['sl-dilate','v-dilate']].forEach(([sid,vid]) => {
-  document.getElementById(sid).addEventListener('input', e => document.getElementById(vid).textContent = e.target.value);
-});
-document.getElementById('bsize').addEventListener('input', e => { brushSz = +e.target.value; document.getElementById('bsizev').textContent = e.target.value; });
+// ─── LIVE CONTROLS ───────────────────────────────────────────────────────────
+function bindSlider(sid,vid){
+  const s=document.getElementById(sid), v=document.getElementById(vid);
+  s.addEventListener('input',()=>{v.textContent=s.value; scheduleMask()});
+}
+bindSlider('sl-thresh','v-thresh');
+bindSlider('sl-blur','v-blur');
+bindSlider('sl-dilate','v-dilate');
 
-// Tabs
-document.querySelectorAll('.tab[data-tab]').forEach(btn => {
-  btn.addEventListener('click', () => showTab(btn.dataset.tab));
+['t-frame','t-header','t-text','t-footer','t-badge','t-thresh'].forEach(id=>{
+  document.getElementById(id).addEventListener('change',scheduleMask);
 });
 
-function showTab(tab) {
-  curTab = tab;
-  document.querySelectorAll('.tab[data-tab]').forEach(b => b.classList.toggle('on', b.dataset.tab === tab));
-  document.getElementById('bctrl').classList.toggle('show', tab === 'paint');
-  pc.classList.toggle('on', tab === 'paint');
+function scheduleMask(){
+  clearTimeout(debounceTimer);
+  debounceTimer=setTimeout(rebuildMask, 60);
+}
+
+// ─── MASK BUILD ──────────────────────────────────────────────────────────────
+async function rebuildMask(){
+  if(!origImg) return;
+
+  const thresh=+document.getElementById('sl-thresh').value;
+  const blurR=+document.getElementById('sl-blur').value;
+  const dilate=+document.getElementById('sl-dilate').value;
+  const useThresh=document.getElementById('t-thresh').checked;
+
+  const tmp=document.createElement('canvas'); tmp.width=imgW; tmp.height=imgH;
+  const tc=tmp.getContext('2d'); tc.drawImage(origImg,0,0);
+  const src=tc.getImageData(0,0,imgW,imgH);
+
+  const n=imgW*imgH;
+  let combined=new Uint8Array(n);
+
+  // Template
+  const tm=new Uint8Array(n);
+  applyTemplate(tm,imgW,imgH);
+  for(let i=0;i<n;i++) combined[i]|=tm[i];
+
+  // Threshold
+  if(useThresh){
+    const lum=new Uint8Array(n);
+    for(let i=0;i<n;i++) lum[i]=Math.round(.299*src.data[i*4]+.587*src.data[i*4+1]+.114*src.data[i*4+2]);
+    const bl=blurR>0?boxBlur(lum,imgW,imgH,blurR):lum;
+    const fg=new Uint8Array(n);
+    for(let i=0;i<n;i++) fg[i]=bl[i]>=thresh?1:0;
+    for(let i=0;i<n;i++) combined[i]|=fg[i];
+  }
+
+  // SAM layers
+  for(const layer of samLayers){
+    if(layer.add){
+      for(let i=0;i<n;i++) combined[i]|=layer.mask[i];
+    } else {
+      for(let i=0;i<n;i++) if(layer.mask[i]) combined[i]=0;
+    }
+  }
+
+  // Dilate
+  if(dilate>0) combined=morphDilate(combined,imgW,imgH,dilate);
+  combined=morphClose(combined,imgW,imgH,2);
+
+  // Write ImageData
+  const out=tc.createImageData(imgW,imgH);
+  for(let i=0;i<n;i++){const v=combined[i]?255:0; out.data[i*4]=v; out.data[i*4+1]=v; out.data[i*4+2]=v; out.data[i*4+3]=255;}
+  maskBase=out;
+
   render();
 }
 
-function render() {
-  if (!origImg) return;
-  mctx.clearRect(0, 0, imgW, imgH);
-  if (curTab === 'original') {
-    mctx.drawImage(origImg, 0, 0);
-  } else if (curTab === 'mask') {
-    const combined = getCombined();
-    if (combined) mctx.putImageData(combined, 0, 0);
-    else { mctx.fillStyle='#000'; mctx.fillRect(0,0,imgW,imgH); }
-  } else if (curTab === 'overlay') {
-    mctx.drawImage(origImg, 0, 0);
-    const combined = getCombined();
-    if (combined) {
-      const ov = mctx.createImageData(imgW, imgH);
-      for (let i = 0; i < combined.data.length; i+=4) {
-        if (combined.data[i] > 128) {
-          ov.data[i]=255; ov.data[i+1]=50; ov.data[i+2]=50; ov.data[i+3]=120;
-        }
-      }
-      const t = document.createElement('canvas'); t.width=imgW; t.height=imgH;
-      t.getContext('2d').putImageData(ov,0,0);
-      mctx.drawImage(t,0,0);
-    }
-  } else if (curTab === 'paint') {
-    const combined = getCombined();
-    if (combined) mctx.putImageData(combined, 0, 0);
-    else { mctx.fillStyle='#000'; mctx.fillRect(0,0,imgW,imgH); }
-    pctx.clearRect(0,0,imgW,imgH);
-    if (paintData) pctx.putImageData(paintData,0,0);
+// ─── TEMPLATE ────────────────────────────────────────────────────────────────
+function applyTemplate(mask,w,h){
+  const frame=document.getElementById('t-frame').checked;
+  const header=document.getElementById('t-header').checked;
+  const text=document.getElementById('t-text').checked;
+  const footer=document.getElementById('t-footer').checked;
+  const badge=document.getElementById('t-badge').checked;
+  function fill(x1f,y1f,x2f,y2f){
+    const x1=Math.round(w*x1f),y1=Math.round(h*y1f),x2=Math.round(w*x2f),y2=Math.round(h*y2f);
+    for(let y=y1;y<y2;y++) for(let x=x1;x<x2;x++) mask[y*w+x]=1;
   }
+  if(frame){fill(0,0,1,.022);fill(0,.978,1,1);fill(0,0,.022,1);fill(.978,0,1,1)}
+  if(header) fill(.022,.022,.978,.13);
+  if(badge)  fill(.022,.022,.21,.08);
+  if(text)   fill(.022,.67,.978,.978);
+  if(footer) fill(.022,.93,.978,.978);
 }
 
-function getCombined() {
-  if (!maskData) return null;
-  const out = new ImageData(new Uint8ClampedArray(maskData.data), imgW, imgH);
-  if (paintData) {
-    for (let i = 0; i < out.data.length; i+=4) {
-      if (paintData.data[i+3] > 0) {
-        const v = paintData.data[i];
+// ─── RENDER ──────────────────────────────────────────────────────────────────
+function getCombined(){
+  if(!maskBase) return null;
+  const out=new ImageData(new Uint8ClampedArray(maskBase.data),imgW,imgH);
+  if(paintData){
+    for(let i=0;i<out.data.length;i+=4){
+      if(paintData.data[i+3]>0){
+        const v=paintData.data[i];
         out.data[i]=v; out.data[i+1]=v; out.data[i+2]=v; out.data[i+3]=255;
       }
     }
@@ -327,191 +399,248 @@ function getCombined() {
   return out;
 }
 
-// Process
-document.getElementById('processBtn').addEventListener('click', async () => {
-  if (!origImg) return;
-  setStatus('proc', 'מעבד...');
-  document.getElementById('prog').style.display='block';
-  prog(10); await sleep(20);
-
-  const thresh = +document.getElementById('sl-thresh').value;
-  const blurR  = +document.getElementById('sl-blur').value;
-  const dilate = +document.getElementById('sl-dilate').value;
-
-  // Get pixel data
-  const tmp = document.createElement('canvas'); tmp.width=imgW; tmp.height=imgH;
-  const tc = tmp.getContext('2d'); tc.drawImage(origImg,0,0);
-  const src = tc.getImageData(0,0,imgW,imgH);
-
-  prog(20); await sleep(20);
-
-  // Luminance
-  const lum = new Uint8Array(imgW*imgH);
-  for (let i=0;i<lum.length;i++) {
-    lum[i] = Math.round(0.299*src.data[i*4] + 0.587*src.data[i*4+1] + 0.114*src.data[i*4+2]);
+function render(){
+  if(!origImg) return;
+  mctx.clearRect(0,0,imgW,imgH);
+  if(curTab==='original'){
+    mctx.drawImage(origImg,0,0);
+  } else if(curTab==='mask'){
+    const c=getCombined();
+    if(c) mctx.putImageData(c,0,0);
+    else {mctx.fillStyle='#000'; mctx.fillRect(0,0,imgW,imgH);}
+  } else if(curTab==='overlay'){
+    mctx.drawImage(origImg,0,0);
+    const c=getCombined();
+    if(c){
+      const ov=mctx.createImageData(imgW,imgH);
+      for(let i=0;i<c.data.length;i+=4) if(c.data[i]>128){ov.data[i]=220;ov.data[i+1]=60;ov.data[i+2]=60;ov.data[i+3]=110;}
+      const t=document.createElement('canvas'); t.width=imgW; t.height=imgH;
+      t.getContext('2d').putImageData(ov,0,0); mctx.drawImage(t,0,0);
+    }
+  } else if(curTab==='paint'){
+    const c=getCombined();
+    if(c) mctx.putImageData(c,0,0);
+    else {mctx.fillStyle='#000'; mctx.fillRect(0,0,imgW,imgH);}
+    pctx.clearRect(0,0,imgW,imgH);
+    if(paintData) pctx.putImageData(paintData,0,0);
   }
+}
 
-  prog(35); await sleep(20);
-  const blurred = blurR > 0 ? boxBlur(lum, imgW, imgH, blurR) : lum;
-  prog(50); await sleep(20);
+// ─── TABS ────────────────────────────────────────────────────────────────────
+document.querySelectorAll('.tab[data-tab]').forEach(b=>{
+  b.addEventListener('click',()=>showTab(b.dataset.tab));
+});
+function showTab(tab){
+  curTab=tab;
+  document.querySelectorAll('.tab[data-tab]').forEach(b=>b.classList.toggle('on',b.dataset.tab===tab));
+  document.getElementById('bctrl').classList.toggle('show',tab==='paint');
+  pc.classList.toggle('on',tab==='paint');
+  // SAM click only on original or overlay
+  sc.classList.toggle('on', (tab==='original'||tab==='overlay') && samPipeline!==null);
+  render();
+}
 
-  // Threshold
-  const fg = new Uint8Array(imgW*imgH);
-  for (let i=0;i<fg.length;i++) fg[i] = blurred[i] >= thresh ? 1 : 0;
+// ─── SAM ─────────────────────────────────────────────────────────────────────
+document.getElementById('loadSamBtn').addEventListener('click', loadSAM);
 
-  // Template zones
-  const tm = new Uint8Array(imgW*imgH);
-  applyTemplate(tm, imgW, imgH);
+async function loadSAM(){
+  if(samLoading||samPipeline) return;
+  samLoading=true;
+  setSamStatus('busy','טוען מודל SAM...');
+  document.getElementById('loadSamBtn').disabled=true;
 
-  prog(65); await sleep(20);
+  // Show spinner overlay on canvas
+  const overlay=document.createElement('div');
+  overlay.className='sam-overlay';
+  overlay.innerHTML=`<div class="spin"></div><p>טוען SAM</p><p class="sub">~40MB — רק פעם אחת</p>`;
+  document.getElementById('cc').appendChild(overlay);
 
-  // Combine
-  let combined = new Uint8Array(imgW*imgH);
-  for (let i=0;i<combined.length;i++) combined[i] = (fg[i]||tm[i]) ? 1 : 0;
-
-  if (dilate > 0) combined = morphDilate(combined, imgW, imgH, dilate);
-  combined = morphClose(combined, imgW, imgH, 2);
-
-  prog(90); await sleep(20);
-
-  // Write mask
-  const out = tc.createImageData(imgW, imgH);
-  for (let i=0;i<combined.length;i++) {
-    const v = combined[i] ? 255 : 0;
-    out.data[i*4]=v; out.data[i*4+1]=v; out.data[i*4+2]=v; out.data[i*4+3]=255;
+  try {
+    const {pipeline, env} = await import('https://cdn.jsdelivr.net/npm/@huggingface/transformers@3/dist/transformers.min.js');
+    env.allowLocalModels=false;
+    setSamStatus('busy','מוריד weights...');
+    samPipeline = await pipeline('image-segmentation', 'Xenova/sam-vit-base', {
+      device: 'webgpu',
+    }).catch(async ()=>{
+      // fallback to wasm if webgpu unavailable
+      setSamStatus('busy','WebGPU לא זמין — מנסה WASM...');
+      return await pipeline('image-segmentation','Xenova/sam-vit-base');
+    });
+    overlay.remove();
+    setSamStatus('ok','SAM מוכן ✓');
+    document.getElementById('samControls').style.display='block';
+    document.getElementById('loadSamBtn').style.display='none';
+    if(curTab==='original'||curTab==='overlay') sc.classList.add('on');
+  } catch(e){
+    overlay.remove();
+    setSamStatus('error','שגיאה: '+e.message);
+    document.getElementById('loadSamBtn').disabled=false;
   }
-  maskData = out;
-  paintData = tc.createImageData(imgW, imgH); // reset paint
+  samLoading=false;
+}
 
-  prog(100); await sleep(80);
-  document.getElementById('prog').style.display='none';
-  document.getElementById('dlBtn').classList.add('show');
-  document.getElementById('resetPaintBtn').style.display='block';
-  setStatus('ready', 'מסכה מוכנה');
-  showTab('mask');
+// SAM click
+sc.addEventListener('click', async e=>{
+  if(!samPipeline||!origImg) return;
+  const rect=sc.getBoundingClientRect();
+  const sx=imgW/rect.width, sy=imgH/rect.height;
+  const px=Math.round((e.clientX-rect.left)*sx);
+  const py=Math.round((e.clientY-rect.top)*sy);
+  const normX=px/imgW, normY=py/imgH;
+
+  setSamStatus('busy','מחשב סגמנטציה...');
+  setStatus('busy','SAM עובד...');
+
+  // Draw click indicator
+  sctx.clearRect(0,0,imgW,imgH);
+  sctx.beginPath();
+  sctx.arc(px,py,8,0,Math.PI*2);
+  sctx.fillStyle = segMode==='add' ? 'rgba(61,214,140,0.8)' : 'rgba(224,85,85,0.8)';
+  sctx.fill();
+  sctx.strokeStyle='white'; sctx.lineWidth=2; sctx.stroke();
+
+  try {
+    // Convert canvas to blob for SAM
+    const tmpC=document.createElement('canvas'); tmpC.width=imgW; tmpC.height=imgH;
+    tmpC.getContext('2d').drawImage(origImg,0,0);
+    const blob=await new Promise(r=>tmpC.toBlob(r,'image/png'));
+    const url=URL.createObjectURL(blob);
+
+    const result = await samPipeline(url, {
+      points: [[normX, normY]],
+      labels: [1],
+    });
+    URL.revokeObjectURL(url);
+
+    // result[0].mask is a tensor — get as array
+    // result is array of {score, label, mask}
+    // pick highest score
+    const best = result.sort((a,b)=>b.score-a.score)[0];
+    const maskArr = best.mask.data; // Float32Array or Uint8Array, 1 per pixel
+
+    const layerMask=new Uint8Array(imgW*imgH);
+    for(let i=0;i<layerMask.length;i++) layerMask[i]=maskArr[i]>0?1:0;
+
+    const layerName=`${segMode==='add'?'➕':'➖'} Seg ${samLayers.length+1}`;
+    samLayers.push({name:layerName, mask:layerMask, add:segMode==='add'});
+    renderLayerList();
+    rebuildMask();
+
+    sctx.clearRect(0,0,imgW,imgH);
+    setSamStatus('ok','SAM מוכן ✓');
+    setStatus('ok','סגמנטציה נוספה');
+  } catch(err){
+    sctx.clearRect(0,0,imgW,imgH);
+    setSamStatus('error','שגיאה: '+err.message);
+    setStatus('','שגיאה בסגמנטציה');
+    console.error(err);
+  }
 });
 
-// Template zones — S&V Illustration Rare proportions
-function applyTemplate(mask, w, h) {
-  const frame  = document.getElementById('t-frame').checked;
-  const header = document.getElementById('t-header').checked;
-  const text   = document.getElementById('t-text').checked;
-  const footer = document.getElementById('t-footer').checked;
-  const badge  = document.getElementById('t-badge').checked;
+// Seg mode
+document.getElementById('smAdd').addEventListener('click',()=>{ segMode='add'; document.getElementById('smAdd').classList.add('on'); document.getElementById('smRemove').classList.remove('on'); });
+document.getElementById('smRemove').addEventListener('click',()=>{ segMode='remove'; document.getElementById('smRemove').classList.add('on'); document.getElementById('smAdd').classList.remove('on'); });
 
-  function fill(x1f,y1f,x2f,y2f) {
-    const x1=Math.round(w*x1f), y1=Math.round(h*y1f);
-    const x2=Math.round(w*x2f), y2=Math.round(h*y2f);
-    for (let y=y1;y<y2;y++) for (let x=x1;x<x2;x++) mask[y*w+x]=1;
-  }
-
-  if (frame) {
-    fill(0,0,1,0.022);       // top border
-    fill(0,0.978,1,1);       // bottom border
-    fill(0,0,0.022,1);       // left border
-    fill(0.978,0,1,1);       // right border
-  }
-  if (header) fill(0.022, 0.022, 0.978, 0.13);  // name + HP row
-  if (badge)  fill(0.022, 0.022, 0.21,  0.08);  // BASIC badge
-  if (text)   fill(0.022, 0.67,  0.978, 0.978); // attacks + stats
-  if (footer) fill(0.022, 0.93,  0.978, 0.978); // footer line
+// Layer list
+function renderLayerList(){
+  const list=document.getElementById('layerList');
+  list.innerHTML='';
+  samLayers.forEach((layer,i)=>{
+    const item=document.createElement('div');
+    item.className='layer-item';
+    // thumb
+    const th=document.createElement('div'); th.className='layer-thumb';
+    const tc=document.createElement('canvas'); tc.width=imgW; tc.height=imgH;
+    const tctx=tc.getContext('2d');
+    const id=tctx.createImageData(imgW,imgH);
+    const col=layer.add?[61,214,140]:[224,85,85];
+    for(let j=0;j<layer.mask.length;j++) if(layer.mask[j]){id.data[j*4]=col[0];id.data[j*4+1]=col[1];id.data[j*4+2]=col[2];id.data[j*4+3]=200;}
+    tctx.putImageData(id,0,0); th.appendChild(tc);
+    const name=document.createElement('span'); name.className='layer-name'; name.textContent=layer.name;
+    const del=document.createElement('button'); del.className='layer-del'; del.textContent='×';
+    del.addEventListener('click',()=>{ samLayers.splice(i,1); renderLayerList(); rebuildMask(); });
+    item.appendChild(th); item.appendChild(name); item.appendChild(del);
+    list.appendChild(item);
+  });
 }
 
-// Image processing
-function boxBlur(src, w, h, r) {
-  const tmp = new Float32Array(src.length), out = new Uint8Array(src.length), d = 2*r+1;
-  for (let y=0;y<h;y++) {
-    let s=0;
-    for (let x=-r;x<r;x++) s+=src[y*w+Math.max(0,x)];
-    for (let x=0;x<w;x++) { s+=src[y*w+Math.min(w-1,x+r)]; s-=src[y*w+Math.max(0,x-r-1)]; tmp[y*w+x]=s/d; }
-  }
-  for (let x=0;x<w;x++) {
-    let s=0;
-    for (let y=-r;y<r;y++) s+=tmp[Math.max(0,y)*w+x];
-    for (let y=0;y<h;y++) { s+=tmp[Math.min(h-1,y+r)*w+x]; s-=tmp[Math.max(0,y-r-1)*w+x]; out[y*w+x]=s/d; }
-  }
-  return out;
+// ─── PAINT ───────────────────────────────────────────────────────────────────
+document.getElementById('bsize').addEventListener('input',e=>{brushSz=+e.target.value; document.getElementById('bsizev').textContent=e.target.value;});
+document.getElementById('pbw').addEventListener('click',()=>{ paintColor='white'; document.getElementById('pbw').classList.add('on'); document.getElementById('pbb').classList.remove('on'); });
+document.getElementById('pbb').addEventListener('click',()=>{ paintColor='black'; document.getElementById('pbb').classList.add('on'); document.getElementById('pbw').classList.remove('on'); });
+document.getElementById('resetPaint').addEventListener('click',()=>{ if(!origImg) return; paintData=pctx.createImageData(imgW,imgH); render(); });
+
+function getXY(e){
+  const r=pc.getBoundingClientRect(), sx=imgW/r.width, sy=imgH/r.height;
+  const cx=e.touches?e.touches[0].clientX:e.clientX, cy=e.touches?e.touches[0].clientY:e.clientY;
+  return {x:Math.round((cx-r.left)*sx), y:Math.round((cy-r.top)*sy)};
 }
-
-function morphDilate(src, w, h, r) {
-  const out = new Uint8Array(src.length);
-  for (let y=0;y<h;y++) for (let x=0;x<w;x++) {
-    if (src[y*w+x]) { out[y*w+x]=1; continue; }
-    let f=false;
-    outer: for (let dy=-r;dy<=r;dy++) for (let dx=-r;dx<=r;dx++) {
-      const nx=x+dx,ny=y+dy;
-      if (nx>=0&&nx<w&&ny>=0&&ny<h&&src[ny*w+nx]) { f=true; break outer; }
-    }
-    out[y*w+x]=f?1:0;
-  }
-  return out;
-}
-
-function morphErode(src, w, h, r) {
-  const out = new Uint8Array(src.length);
-  for (let y=0;y<h;y++) for (let x=0;x<w;x++) {
-    if (!src[y*w+x]) continue;
-    let ok=true;
-    outer: for (let dy=-r;dy<=r;dy++) for (let dx=-r;dx<=r;dx++) {
-      const nx=x+dx,ny=y+dy;
-      if (nx>=0&&nx<w&&ny>=0&&ny<h&&!src[ny*w+nx]) { ok=false; break outer; }
-    }
-    out[y*w+x]=ok?1:0;
-  }
-  return out;
-}
-
-function morphClose(src, w, h, r) { return morphErode(morphDilate(src,w,h,r),w,h,r); }
-
-// Paint
-document.getElementById('pbw').addEventListener('click', () => { paintColor='white'; document.getElementById('pbw').classList.add('on'); document.getElementById('pbb').classList.remove('on'); });
-document.getElementById('pbb').addEventListener('click', () => { paintColor='black'; document.getElementById('pbb').classList.add('on'); document.getElementById('pbw').classList.remove('on'); });
-document.getElementById('resetPaintBtn').addEventListener('click', () => { if (!origImg) return; paintData = pctx.createImageData(imgW,imgH); render(); });
-
-function getXY(e) {
-  const r = pc.getBoundingClientRect();
-  const sx = imgW/r.width, sy = imgH/r.height;
-  const cx = e.touches ? e.touches[0].clientX : e.clientX;
-  const cy = e.touches ? e.touches[0].clientY : e.clientY;
-  return { x: Math.round((cx-r.left)*sx), y: Math.round((cy-r.top)*sy) };
-}
-
-function paintAt(x, y) {
-  const v = paintColor==='white' ? 255 : 0;
-  for (let dy=-brushSz;dy<=brushSz;dy++) for (let dx=-brushSz;dx<=brushSz;dx++) {
-    if (dx*dx+dy*dy>brushSz*brushSz) continue;
-    const nx=x+dx, ny=y+dy;
-    if (nx<0||nx>=imgW||ny<0||ny>=imgH) continue;
+function doPaint(x,y){
+  const v=paintColor==='white'?255:0;
+  for(let dy=-brushSz;dy<=brushSz;dy++) for(let dx=-brushSz;dx<=brushSz;dx++){
+    if(dx*dx+dy*dy>brushSz*brushSz) continue;
+    const nx=x+dx,ny=y+dy;
+    if(nx<0||nx>=imgW||ny<0||ny>=imgH) continue;
     const i=(ny*imgW+nx)*4;
     paintData.data[i]=v; paintData.data[i+1]=v; paintData.data[i+2]=v; paintData.data[i+3]=255;
   }
-  pctx.clearRect(0,0,imgW,imgH);
-  pctx.putImageData(paintData,0,0);
+  pctx.clearRect(0,0,imgW,imgH); pctx.putImageData(paintData,0,0);
 }
+pc.addEventListener('mousedown',e=>{painting=true;const p=getXY(e);doPaint(p.x,p.y)});
+pc.addEventListener('mousemove',e=>{if(!painting) return;const p=getXY(e);doPaint(p.x,p.y)});
+pc.addEventListener('mouseup',()=>painting=false);
+pc.addEventListener('mouseleave',()=>painting=false);
+pc.addEventListener('touchstart',e=>{e.preventDefault();painting=true;const p=getXY(e);doPaint(p.x,p.y)},{passive:false});
+pc.addEventListener('touchmove',e=>{e.preventDefault();if(!painting) return;const p=getXY(e);doPaint(p.x,p.y)},{passive:false});
+pc.addEventListener('touchend',()=>painting=false);
 
-pc.addEventListener('mousedown', e => { painting=true; const p=getXY(e); paintAt(p.x,p.y); });
-pc.addEventListener('mousemove', e => { if (!painting) return; const p=getXY(e); paintAt(p.x,p.y); });
-pc.addEventListener('mouseup', () => painting=false);
-pc.addEventListener('mouseleave', () => painting=false);
-pc.addEventListener('touchstart', e => { e.preventDefault(); painting=true; const p=getXY(e); paintAt(p.x,p.y); },{passive:false});
-pc.addEventListener('touchmove', e => { e.preventDefault(); if(!painting) return; const p=getXY(e); paintAt(p.x,p.y); },{passive:false});
-pc.addEventListener('touchend', () => painting=false);
-
-// Download
-document.getElementById('dlBtn').addEventListener('click', () => {
+// ─── DOWNLOAD ────────────────────────────────────────────────────────────────
+document.getElementById('dlBtn').addEventListener('click',()=>{
   const t=document.createElement('canvas'); t.width=imgW; t.height=imgH;
   const c=getCombined(); if(c) t.getContext('2d').putImageData(c,0,0);
   const a=document.createElement('a'); a.download='mask.png'; a.href=t.toDataURL('image/png'); a.click();
 });
 
-// Utils
-function setStatus(state, txt) {
+// ─── IMAGE PROCESSING ────────────────────────────────────────────────────────
+function boxBlur(src,w,h,r){
+  const tmp=new Float32Array(src.length),out=new Uint8Array(src.length),d=2*r+1;
+  for(let y=0;y<h;y++){let s=0;for(let x=-r;x<r;x++)s+=src[y*w+Math.max(0,x)];for(let x=0;x<w;x++){s+=src[y*w+Math.min(w-1,x+r)];s-=src[y*w+Math.max(0,x-r-1)];tmp[y*w+x]=s/d;}}
+  for(let x=0;x<w;x++){let s=0;for(let y=-r;y<r;y++)s+=tmp[Math.max(0,y)*w+x];for(let y=0;y<h;y++){s+=tmp[Math.min(h-1,y+r)*w+x];s-=tmp[Math.max(0,y-r-1)*w+x];out[y*w+x]=s/d;}}
+  return out;
+}
+function morphDilate(src,w,h,r){
+  const out=new Uint8Array(src.length);
+  for(let y=0;y<h;y++) for(let x=0;x<w;x++){
+    if(src[y*w+x]){out[y*w+x]=1;continue;}
+    let f=false;
+    outer:for(let dy=-r;dy<=r;dy++) for(let dx=-r;dx<=r;dx++){const nx=x+dx,ny=y+dy;if(nx>=0&&nx<w&&ny>=0&&ny<h&&src[ny*w+nx]){f=true;break outer;}}
+    out[y*w+x]=f?1:0;
+  }
+  return out;
+}
+function morphErode(src,w,h,r){
+  const out=new Uint8Array(src.length);
+  for(let y=0;y<h;y++) for(let x=0;x<w;x++){
+    if(!src[y*w+x]) continue;
+    let ok=true;
+    outer:for(let dy=-r;dy<=r;dy++) for(let dx=-r;dx<=r;dx++){const nx=x+dx,ny=y+dy;if(nx>=0&&nx<w&&ny>=0&&ny<h&&!src[ny*w+nx]){ok=false;break outer;}}
+    out[y*w+x]=ok?1:0;
+  }
+  return out;
+}
+function morphClose(src,w,h,r){return morphErode(morphDilate(src,w,h,r),w,h,r);}
+
+// ─── UTILS ───────────────────────────────────────────────────────────────────
+function setStatus(state,txt){
   const d=document.getElementById('sdot');
-  d.className='sdot'+(state?' '+state:'');
+  d.className='sdot'+(state==='ok'?' ok':state==='busy'?' busy':'');
   document.getElementById('stxt').textContent=txt;
 }
-function prog(v) { document.getElementById('pf').style.width=v+'%'; }
-function sleep(ms) { return new Promise(r=>setTimeout(r,ms)); }
+function setSamStatus(state,txt){
+  const el=document.getElementById('samStatusTxt');
+  el.textContent=txt;
+  el.style.color=state==='ok'?'var(--green)':state==='error'?'var(--red)':'var(--gold)';
+}
 </script>
 </body>
 </html>
